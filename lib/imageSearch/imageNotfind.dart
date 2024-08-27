@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Imagenotfind extends StatefulWidget {
   @override
@@ -7,11 +10,21 @@ class Imagenotfind extends StatefulWidget {
 
 class _Imagenotfind extends State<Imagenotfind> {
   TextEditingController imgName = TextEditingController();
+  XFile? _image;
 
   @override
   void dispose() {
     imgName.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image = image;
+    });
   }
 
   @override
@@ -29,22 +42,23 @@ class _Imagenotfind extends State<Imagenotfind> {
         child: Center(
           child: Column(children: <Widget>[
             Padding(
-              padding: EdgeInsets.fromLTRB(0, 70, 0, 100),
+              padding: EdgeInsets.fromLTRB(0, 70, 0, 30),
               child: Text(
-                '죄송합니다. 이미지 인식에 실패했습니다. \n이용에 불편을 드려 죄송합니다.',
+                '죄송합니다. 이용에 불편을 드려 죄송합니다.\n학습된 이미지가 아닙니다.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
+            SizedBox(height: 70),
             Padding(
                 padding: EdgeInsets.all(0),
                 child: SingleChildScrollView(
                     child: Column(children: [
                   Container(
-                    width: 400,
+                    width: 330,
                     height: 30,
                     child: TextField(
                       controller: imgName,
@@ -53,43 +67,88 @@ class _Imagenotfind extends State<Imagenotfind> {
                           hintStyle: TextStyle(fontSize: 16)),
                     ),
                   ),
-                ]))),
-            Container(
-                width: 330,
-                height: 60,
-                padding: EdgeInsets.all(0),
-                margin: EdgeInsets.fromLTRB(0, 50, 0, 0),
-                color: Color(0xFF6AC99F),
-                child: TextButton(
-                  onPressed: () => {
-                    if (imgName.text == '')
-                      inputIsNull(context)
-                    else
-                      BtnPopup(context)
-                  },
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '관리자에게 전달하기\n',
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: EdgeInsets.only(right: 40),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: _pickImage,
+                        child: Text(
+                          '실패한 이미지 첨부',
                           style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        TextSpan(
-                          text: '해당 이미지는 더 많은 쓰레기를 인식하기 위해 활용됩니다.',
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500),
-                        )
-                      ],
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8), // 패딩을 줄여 버튼 크기 줄임
+                          minimumSize: Size(100, 30), // 버튼 크기 조정
+                          backgroundColor: Color(0xFFC0C0C0), // 버튼 배경색
+                          foregroundColor: Color(0xFFFFFFFF), // 버튼 텍스트 색상
+                          side: BorderSide(
+                            color: Color(0xFF828282), // 테두리 색상
+                            width: 1, // 테두리 두께
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5), // 둥글기 조절
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                )),
+                  SizedBox(height: 40),
+                  if (_image != null)
+                    Image.file(
+                      File(_image!.path),
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                ]))),
+            Container(
+              width: 300,
+              height: 60,
+              padding: EdgeInsets.all(0),
+              margin: EdgeInsets.fromLTRB(0, 50, 0, 0),
+              child: TextButton(
+                onPressed: () => {
+                  if (imgName.text == '')
+                    inputIsNull(context)
+                  else
+                    BtnPopup(context)
+                },
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '관리자에게 전달하기\n',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '해당 이미지는 더 많은 쓰레기를 인식하기 위해 활용됩니다.',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500),
+                      )
+                    ],
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFF6AC99F), // 버튼 배경색
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7), // 둥글기 조절
+                  ),
+                ),
+              ),
+            ),
           ]),
         ),
       ),
@@ -164,6 +223,12 @@ void imgError(BuildContext context) {
                             fontWeight: FontWeight.w500),
                       )
                     ],
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFF6AC99F), // 버튼 배경색
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15), // 둥글기 조절
                   ),
                 ),
               )),

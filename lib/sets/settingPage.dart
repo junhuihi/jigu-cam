@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../imageSearch/imageNotfind.dart';
 
-//설정화면
+// 설정화면
 class Settingpage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _Settingpage();
@@ -96,7 +99,7 @@ class _Settingpage extends State<Settingpage> {
   }
 }
 
-//문의하기 페이지
+// 문의하기 페이지
 class Askpage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _Askpage();
@@ -105,12 +108,22 @@ class Askpage extends StatefulWidget {
 class _Askpage extends State<Askpage> {
   TextEditingController askName1 = TextEditingController();
   TextEditingController askName2 = TextEditingController();
+  XFile? _image;
 
   @override
   void dispose() {
     askName1.dispose();
     askName2.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image = image;
+    });
   }
 
   @override
@@ -137,7 +150,7 @@ class _Askpage extends State<Askpage> {
                 ),
               ),
               SizedBox(height: 20.0), // 간격
-              Text('내용', style: TextStyle(fontSize: 16)),
+              Text('문의 내용', style: TextStyle(fontSize: 16)),
               TextField(
                 minLines: 6,
                 maxLines: 6,
@@ -146,10 +159,49 @@ class _Askpage extends State<Askpage> {
                   border: OutlineInputBorder(),
                 ),
               ),
+              SizedBox(height: 10.0),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: _pickImage,
+                  child: Text(
+                    '관련 이미지 첨부',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 8), // 패딩을 줄여 버튼 크기 줄임
+                    minimumSize: Size(100, 30), // 버튼 크기 조정
+                    backgroundColor: Color(0xFFC0C0C0), // 버튼 배경색
+                    foregroundColor: Color(0xFFFFFFFF), // 버튼 텍스트 색상
+                    side: BorderSide(
+                      color: Color(0xFF828282), // 테두리 색상
+                      width: 1, // 테두리 두께
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5), // 둥글기 조절
+                    ),
+                  ),
+                ),
+              ),
+              if (_image != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Image.file(
+                    File(_image!.path),
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              SizedBox(height: 40.0),
               Center(
                 child: Container(
                   width: 250,
-                  height: 50,
+                  height: 40,
                   padding: EdgeInsets.all(0),
                   margin: EdgeInsets.fromLTRB(0, 30, 0, 0),
                   child: TextButton(
@@ -161,11 +213,17 @@ class _Askpage extends State<Askpage> {
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: Color(0xFF6AC99F),
-                      shape: RoundedRectangleBorder(),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Text(
                       '문의 접수하기',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
