@@ -28,10 +28,28 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _offsetAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1), // 속도를 빠르게 하기 위해 duration을 1초로 설정
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _offsetAnimation = Tween<Offset>(
+      begin: Offset(0.0, 0.0),
+      end: Offset(0.0, -0.1),
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
     _navigateToHome();
   }
 
@@ -44,6 +62,12 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -51,14 +75,13 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset(
-              'assets/images/load_img.png',
-              width: 200,
-              height: 200,
-            ),
-            SizedBox(height: 20),
-            CircularProgressIndicator(
-              color: Color(0xFF6AC99F),
+            SlideTransition(
+              position: _offsetAnimation,
+              child: Image.asset(
+                'assets/images/load_img.png',
+                width: 150,
+                height: 150,
+              ),
             ),
           ],
         ),
@@ -90,7 +113,7 @@ class _MyAppPage extends State<MyAppPage> with SingleTickerProviderStateMixin {
     return Scaffold(
         body: TabBarView(
           children: <Widget>[
-            Imagenotfind(),
+            Home(),
             CameraScreen(),
             Settingpage(),
           ],
